@@ -92,8 +92,8 @@ class Granite::Adapter::Pg < Granite::Adapter::Base
 
     if options["update_on_duplicate"]?
       if columns = options["columns"]?
-        if options["custom_primary"]?
-          primary_key = options["custom_primary"].map {|cp| quote(cp) }.join(',')
+        if custom_primary = options["custom_primary"]?
+          primary_key = custom_primary.map {|cp| quote(cp) }.join(',')
         else
           primary_key = quote(primary_name)
         end
