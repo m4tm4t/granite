@@ -48,14 +48,14 @@ module Granite::Transactions
       raise DB::Error.new(err.message)
     end
 
-    def import(model_array : Array(self) | Granite::Collection(self), update_on_duplicate : Bool, columns : Array(String), batch_size : Int32 = model_array.size)
+    def import(model_array : Array(self) | Granite::Collection(self), update_on_duplicate : Bool, columns : Array(String), custom_primary : Array(String), batch_size : Int32 = model_array.size)
       {% begin %}
         {% primary_key = @type.instance_vars.find { |ivar| (ann = ivar.annotation(Granite::Column)) && ann[:primary] } %}
         {% raise raise "A primary key must be defined for #{@type.name}." unless primary_key %}
         {% ann = primary_key.annotation(Granite::Column) %}
         fields_duplicate = fields.dup
         model_array.each_slice(batch_size, true) do |slice|
-          adapter.import(table_name, {{primary_key.name.stringify}}, {{ann[:auto]}}, fields_duplicate, slice, update_on_duplicate: update_on_duplicate, columns: columns)
+          adapter.import(table_name, {{primary_key.name.stringify}}, {{ann[:auto]}}, fields_duplicate, slice, update_on_duplicate: update_on_duplicate, columns: columns, custom_primary: custom_primary)
         end
       {% end %}
     rescue err
